@@ -1,0 +1,12 @@
+{set:e|{if:{arg:0}|=|ihtx|then:{arg:1}|else:{arg:0}}}
+{if:{get:e}|=|g major|then:{set:c|
+-f mp4 -vf negate -filter_complex "[0:a]rubberband=pitch=2^(-12/12):window=short:transients=crisp:detector=2.14748e+09/4.9:pitchq=quality[a1];[0:a]rubberband=pitch=2^(-5/12):window=short:transients=crisp:detector=2.14748e+09/4.9:pitchq=quality[a2];[0:a]rubberband=pitch=2^(0/12):window=short:transients=crisp:detector=2.14748e+09/4.9:pitchq=quality[a3];[0:a]rubberband=pitch=2^(4/12):window=short:transients=crisp:detector=2.14748e+09/4.9:pitchq=quality[a4];[0:a]rubberband=pitch=2^(7/12):window=short:transients=crisp:detector=2.14748e+09/4.9:pitchq=quality[a5];[0:a]rubberband=pitch=2^(12/12):window=short:transients=crisp:detector=2.14748e+09/4.9:pitchq=quality[a6];[a1][a2][a3][a4][a5][a6]amix=6:normalize=0[outa]" -map 0:v -map "[outa]" -c:v ffv1 -c:a pcm_s16le}}
+{sh:
+load {iv}
+sr=$(ffprobe -v error -select_streams a:0 -show_entries stream=sample_rate -of default=nokey=1:noprint_wrappers=1 $FILE_1)
+fr=$(ffprobe -v error -select_streams v:0 -show_entries stream=r_frame_rate -of default=nokey=1:noprint_wrappers=1 $FILE_1)
+d=$(ffprobe -i $FILE_1 -show_entries format=duration -v quiet -of csv="p=0")
+w=$(ffprobe -v error -select_streams v:0 -show_entries stream=width -of default=nw=1:nk=1 $FILE_1)
+h=$(ffprobe -v error -select_streams v:0 -show_entries stream=height -of default=nw=1:nk=1 $FILE_1)
+fc=$(ffprobe -v error -select_streams v:0 -show_entries stream=nb_frames -of default=nokey=1:noprint_wrappers=1 $FILE_1)
+ffmpeg -i $FILE_1 {get:c} ./output/$(basename $FILE_1)}
